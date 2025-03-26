@@ -523,7 +523,7 @@ end
 
 
 local successUI, UILib = pcall(function()
-    return loadstring(game:HttpGet("https://raw.githubusercontent.com/rustbuilderz/RBS/main/lib/library.lua"))()
+    return loadstring(game:HttpGet("https://raw.githubusercontent.com/rustbuilderz/SpectraRoblox/refs/heads/main/library.lua"))()
 end)
 if not successUI then warn("❌ Failed to load UI Library!") end
 
