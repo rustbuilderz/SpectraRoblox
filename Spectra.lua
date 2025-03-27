@@ -39,7 +39,9 @@ local settings = {
     SilentAimEnabled = false,
     FlyEnabled = false,
     FlySpeed = 50,
-    FlyKeybind = Enum.KeyCode.F
+    FlyKeybind = Enum.KeyCode.F,
+	SilentAimEnabled = false,
+	SilentAimIntensity = 50
 }
 
 local ESPObjects = {} 
@@ -517,11 +519,77 @@ local function DisableNoclip()
     end
 end
 
+local function ModifyHeadHitbox(character, enabled, size)
+    if not character then return end
+    
+    local head = character:FindFirstChild("Head")
+    local humanoid = character:FindFirstChild("Humanoid")
+    if not head or not humanoid or not (head:IsA("MeshPart") or head:IsA("Part")) then return end
+
+    
+    local defaultSize = humanoid.RigType == Enum.HumanoidRigType.R6 
+    	and Vector3.new(2, 1, 1)  
+    	or Vector3.new(0.95, 0.95, 0.95) 
+
+    if enabled then
+  	  
+	  head.Size = Vector3.new(size, size, size)
+  	  head.CanCollide = false
+  	  head.Massless = true
+  	  head.Transparency = 0.5  
+
+  	  
+   	 for _, child in pairs(head:GetChildren()) do
+   	     if child:IsA("Decal") or child:IsA("Texture") then
+   	         child.Transparency = 1
+  	      end
+  	  end
+	else
+ 	   
+ 	   head.Size = defaultSize
+ 	   head.CanCollide = true
+ 	   head.Massless = false
+	    head.Transparency = 0  
+
+	    
+	    for _, child in pairs(head:GetChildren()) do
+        	if child:IsA("Decal") or child:IsA("Texture") then
+            	child.Transparency = 0
+        	end
+    	end
+	end
+end
+
+
+task.spawn(function()
+    while true do
+        for _, player in pairs(Players:GetPlayers()) do
+            if player ~= LocalPlayer and player.Character and player.Character:FindFirstChild("Humanoid") then
+                if player.Character.Humanoid.Health > 0 then
+                    local newSize = settings.SilentAimEnabled and (settings.SilentAimIntensity / 5) or nil
+                    ModifyHeadHitbox(player.Character, settings.SilentAimEnabled, newSize)
+                end
+            end
+        end
+        task.wait(0.1)
+    end
+end)
+
+
+Players.PlayerAdded:Connect(function(player)
+    player.CharacterAdded:Connect(function(character)
+        task.wait(1) 
+        local newSize = settings.SilentAimEnabled and (settings.SilentAimIntensity / 5) or nil
+        ModifyHeadHitbox(character, settings.SilentAimEnabled, newSize)
+    end)
+end)
 
 
 
+-- [[ MENU <3 ]]
 
--- [[ MENU ]]
+
+
 
 
 local successUI, UILib = pcall(function()
@@ -562,6 +630,17 @@ AimbotTab:NewDropdown("Aim Key", {"X", "Left Mouse Button", "Right Mouse Button"
     }
     settings.AimKey = keyMap[selected] or Enum.KeyCode.X
 end, "X")
+
+local SilentAimTab = Main:NewTab("Silent Aim")
+
+SilentAimTab:NewToggle("Silent Aim", function(state)
+    settings.SilentAimEnabled = state
+end, settings.SilentAimEnabled)
+
+SilentAimTab:NewSlider("Silent Aim Intensity", 1, 100, 1, function(value)
+    settings.SilentAimIntensity = value
+end, settings.SilentAimIntensity)
+
 
 local ESPTab = Main:NewTab("ESP")
 
