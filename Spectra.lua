@@ -527,38 +527,52 @@ local function ModifyHeadHitbox(character, enabled, size)
     if not head or not humanoid or not (head:IsA("MeshPart") or head:IsA("Part")) then return end
 
     
-    local defaultSize = humanoid.RigType == Enum.HumanoidRigType.R6 
-    	and Vector3.new(2, 1, 1)  
-    	or Vector3.new(0.95, 0.95, 0.95) 
+    local defaultSize = humanoid.RigType == Enum.HumanoidRigType.R6 and Vector3.new(2, 1, 1) or Vector3.new(1, 1, 1)
+
+    local mesh = head:FindFirstChildOfClass("SpecialMesh")  
 
     if enabled then
-  	  
-	  head.Size = Vector3.new(size, size, size)
-  	  head.CanCollide = false
-  	  head.Massless = true
-  	  head.Transparency = 0.5  
+        
+        if mesh then
+            mesh.Scale = Vector3.new(size / 2, size / 2, size / 2)  
+        else
+            head.Size = Vector3.new(size, size, size)
+        end
+        head.CanCollide = false
+        head.Massless = true
+        head.Transparency = 1  
 
-  	  
-   	 for _, child in pairs(head:GetChildren()) do
-   	     if child:IsA("Decal") or child:IsA("Texture") then
-   	         child.Transparency = 1
-  	      end
-  	  end
-	else
- 	   
- 	   head.Size = defaultSize
- 	   head.CanCollide = true
- 	   head.Massless = false
-	    head.Transparency = 0  
+        
+        for _, child in pairs(head:GetChildren()) do
+            if child:IsA("Decal") or child:IsA("Texture") then
+                child.Transparency = 1
+            elseif child:IsA("SurfaceAppearance") or child:IsA("FaceControls") or child:IsA("MeshPart") then
+                child:Destroy()  
+            end
+        end
+    else
+        
+        if mesh then
+            mesh.Scale = Vector3.new(1, 1, 1)  
+        else
+            head.Size = defaultSize
+        end
+        head.CanCollide = true
+        head.Massless = false
+        head.Transparency = 0  
 
-	    
-	    for _, child in pairs(head:GetChildren()) do
-        	if child:IsA("Decal") or child:IsA("Texture") then
-            	child.Transparency = 0
-        	end
-    	end
-	end
+        
+        for _, child in pairs(head:GetChildren()) do
+            if child:IsA("Decal") or child:IsA("Texture") then
+                child.Transparency = 0
+            end
+        end
+    end
 end
+
+
+
+
 
 
 task.spawn(function()
@@ -586,9 +600,9 @@ end)
 
 
 
--- [[ MENU <3 ]]
 
 
+-- [[ MENU <3]]
 
 
 
