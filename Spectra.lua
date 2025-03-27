@@ -1,3 +1,5 @@
+local UserInputService = game:GetService("UserInputService")
+
 if getgenv().SA_LOADED and not getgenv().SA_DEBUG then
     print("Spectra is already loaded. Exiting script...")
     return
@@ -376,19 +378,17 @@ local function AimAt(target)
     end
 end
 
-
-UserInputService.InputBegan:Connect(function(input, gameProcessed)
-    if not gameProcessed and (input.KeyCode == settings.AimKey or input.UserInputType == settings.AimKey) then
+UserInputService.InputBegan:Connect(function(input)
+    if input.KeyCode == settings.AimKey or input.UserInputType == settings.AimKey then
         aiming = true
     end
 end)
 
-UserInputService.InputEnded:Connect(function(input, gameProcessed)
+UserInputService.InputEnded:Connect(function(input)
     if input.KeyCode == settings.AimKey or input.UserInputType == settings.AimKey then
         aiming = false
     end
 end)
-
 
 RunService.RenderStepped:Connect(function()
     if settings.AimbotEnabled and aiming then
@@ -516,6 +516,8 @@ local function DisableNoclip()
         end
     end
 end
+
+
 
 
 
