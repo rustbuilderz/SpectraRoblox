@@ -41,7 +41,9 @@ local settings = {
     FlySpeed = 50,
     FlyKeybind = Enum.KeyCode.F,
 	SilentAimEnabled = false,
-	SilentAimIntensity = 50
+	SilentAimIntensity = 50,
+	SpeedEnabled = false,
+	SpeedValue = 30
 }
 
 local ESPObjects = {} 
@@ -598,8 +600,33 @@ Players.PlayerAdded:Connect(function(player)
     end)
 end)
 
+local runningSpeedHack = false 
+local function SpeedHack()
+    if runningSpeedHack then return end
+    runningSpeedHack = true
 
+    local player = game.Players.LocalPlayer
+    if not player then return end
 
+    while settings.SpeedEnabled do
+        if player.Character then
+            local humanoid = player.Character:FindFirstChildOfClass("Humanoid")
+            if humanoid then
+                humanoid.WalkSpeed = settings.SpeedValue
+            end
+        end
+        task.wait(0.1)  
+    end
+
+    if player.Character then
+        local humanoid = player.Character:FindFirstChildOfClass("Humanoid")
+        if humanoid then
+            humanoid.WalkSpeed = 16
+        end
+    end
+
+    runningSpeedHack = false
+end
 
 
 -- [[ MENU <3]]
@@ -687,6 +714,17 @@ MovementTab:NewToggle("Infinite Jump", function(state)
     settings.InfiniteJump = state
 end, settings.InfiniteJump)
 
+MovementTab:NewToggle("Speed Hack", function(state)
+    settings.SpeedEnabled = state
+    if state then
+        task.spawn(SpeedHack)
+    end
+end, settings.SpeedEnabled)
+
+MovementTab:NewSlider("Speed Value", 1, 500, 1, function(value)
+    settings.SpeedValue = value
+end, settings.SpeedValue)
+
 game:GetService("UserInputService").JumpRequest:Connect(function()
     if InfiniteJumpEnabled then
         local humanoid = game:GetService("Players").LocalPlayer.Character and game:GetService("Players").LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
@@ -718,7 +756,7 @@ MovementTab:NewToggle("Backflip", function(state)
 end, settings.Backflip)
 
 
-MovementTab:NewSlider("Fly Speed", 10, 100, 5, function(value)
+MovementTab:NewSlider("Fly Speed", 10, 300, 5, function(value)
     settings.FlySpeed = value
 end, settings.FlySpeed)
 
